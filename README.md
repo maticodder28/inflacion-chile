@@ -4,6 +4,9 @@ Todos los meses el Banco Central le pregunta a un grupo de economistas cuánta i
 modelo, con los mismos datos públicos y sin ver el futuro, podía pronosticar mejor que ellos. Así que armé una
 competencia justa con 16 años de pronósticos reales (2010–2026).
 
+**Dashboard en vivo:** https://inflacion-chile-matias.vercel.app (se actualiza solo cada mes, con la apuesta abierta
+de este mes: qué dicen hoy los economistas y qué dice cada modelo).
+
 **Respuesta corta:** en la inflación del mes, los economistas ganan claro. A un año plazo, no le ganan de forma
 demostrable ni a decir "3%" todos los meses, y desde 2024 un SARIMA simple se equivoca menos que ellos.
 
@@ -60,8 +63,8 @@ un SARIMA y dos modelos de machine learning (regresión ridge y gradient boostin
   archivos), `aplicacion` (casos de uso y puertos), `infraestructura` (cliente de la API, archivos CSV) y
   `presentacion` (línea de comandos y gráficos). Hay un test que falla si una capa importa a otra que no debe.
 - **Se actualiza solo:** el 12 de cada mes, un workflow de GitHub Actions baja los datos nuevos, corre la competencia y
-  regenera los gráficos. El token de la API vive como secreto del repo.
-- **Calidad:** 25 tests (pytest), ruff y CI en cada push.
+  regenera los gráficos y el dashboard, que Vercel publica al tiro. El token de la API vive como secreto del repo.
+- **Calidad:** 26 tests (pytest), ruff y CI en cada push.
 
 ```
 src/inflacion/
@@ -69,6 +72,7 @@ src/inflacion/
   aplicacion/       puertos, catalogo, descarga, competencia
   infraestructura/  bcch (API del Banco Central), almacen_csv, config
   presentacion/     cli, graficos
+sitio/              dashboard público (HTML + JS sin librerías; datos.json lo genera python -m inflacion sitio)
 config/series.toml  qué series se usan y cómo se transforman
 data/               panel mensual y resultados (versionados)
 notebooks/          análisis exploratorio y conclusiones
@@ -82,6 +86,7 @@ export BCCH_TOKEN=...          # se obtiene gratis en https://si3.bcentral.cl/Si
 python -m inflacion datos      # baja las series y arma data/panel_mensual.csv
 python -m inflacion competir   # backtest: modelos vs economistas (~1 minuto)
 python -m inflacion graficos   # regenera docs/img/
+python -m inflacion sitio      # regenera sitio/datos.json
 pytest
 ```
 
