@@ -1,6 +1,6 @@
 name: datos
 
-# Actualiza data/panel_mensual.csv con las series del Banco Central.
+# Actualiza data/panel_mensual.csv con las series del Banco Central y vuelve a correr la competencia.
 # El IPC sale el día 8 de cada mes y la Encuesta de Expectativas cerca del 10, así que corre el 12.
 
 on:
@@ -19,10 +19,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -e .
+      - run: pip install -e ".[modelos]"
       - run: python -m inflacion datos
         env:
           BCCH_TOKEN: ${{ secrets.BCCH_TOKEN }}
+      - run: python -m inflacion competir
       - name: Subir los datos
         run: |
           git config user.name "github-actions[bot]"

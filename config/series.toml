@@ -1,6 +1,7 @@
 # Series del Banco Central que usa el proyecto. Los códigos salen de data/catalogo.csv.
 # Si una serie tiene varios códigos (cambios de base), se empalman: el último código manda donde se traslapan.
 # agregacion: cómo pasar una serie diaria a mensual ("promedio" o "ultimo"). Las mensuales no la necesitan.
+# rezago: meses que tarda en publicarse, contados desde la encuesta. 1 = el dato del mes anterior ya se conoce.
 
 [[serie]]
 nombre = "ipc_mensual"
@@ -38,6 +39,8 @@ codigos = ["F019.PPB.PRE.40.M"]
 nombre = "imacec"
 descripcion = "Imacec empalmado, serie original (índice 2018=100)"
 codigos = ["F032.IMC.IND.Z.Z.EP18.Z.Z.0.M"]
+# Sale cerca del día 1 del mes subsiguiente: a mitad de noviembre se conoce el de septiembre.
+rezago = 2
 
 [[serie]]
 nombre = "eee_mes"

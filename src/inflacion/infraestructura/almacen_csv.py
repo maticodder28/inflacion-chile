@@ -20,3 +20,11 @@ class AlmacenCSV:
     def guardar_panel(self, panel: pd.DataFrame) -> None:
         self.carpeta.mkdir(parents=True, exist_ok=True)
         panel.to_csv(self.carpeta / "panel_mensual.csv", float_format="%.6g", date_format="%Y-%m-%d")
+
+    def leer_panel(self) -> pd.DataFrame:
+        return pd.read_csv(self.carpeta / "panel_mensual.csv", index_col="mes", parse_dates=True)
+
+    def guardar_resultado(self, nombre: str, tabla: pd.DataFrame) -> None:
+        carpeta = self.carpeta / "resultados"
+        carpeta.mkdir(parents=True, exist_ok=True)
+        tabla.to_csv(carpeta / f"{nombre}.csv", float_format="%.4f", date_format="%Y-%m-%d")

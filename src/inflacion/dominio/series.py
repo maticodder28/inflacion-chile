@@ -36,6 +36,7 @@ class DefSerie:
     descripcion: str
     codigos: tuple[str, ...]
     agregacion: str | None = None  # "promedio" | "ultimo" para series diarias
+    rezago: int = 1  # meses que tarda en publicarse, contados desde el mes de la encuesta
 
     def __post_init__(self):
         if not self.codigos:
