@@ -5,7 +5,9 @@ puedo probarlo con una sesión falsa. El token sale de la variable de entorno BC
 """
 
 import time
+from datetime import date
 
+import pandas as pd
 import requests
 
 from inflacion.dominio.series import Frecuencia, InfoSerie
@@ -49,3 +51,14 @@ class ClienteBCCh:
             )
             for s in datos.get("SeriesInfos") or []
         ]
+
+    def observaciones(self, codigo: str, desde: date, hasta: date) -> pd.Series:
+        datos = self._get(
+            function="GetSeries", timeseries=codigo, firstdate=desde.isoformat(), lastdate=hasta.isoformat()
+        )
+        obs = (datos.get("Series") or {}).get("Obs") or []
+        # Las fechas vienen como DD-MM-YYYY y los valores como texto; los faltantes traen statusCode "ND" y "NaN".
+        fechas = pd.to_datetime([o["indexDateString"] for o in obs], format="%d-%m-%Y")
+        valores = pd.to_numeric([o.get("value") for o in obs], errors="coerce")
+        serie = pd.Series(valores, index=fechas, name=codigo, dtype=float)
+        return serie[[o.get("statusCode") == "OK" for o in obs]].dropna()

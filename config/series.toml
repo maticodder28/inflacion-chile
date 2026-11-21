@@ -1,0 +1,55 @@
+# Series del Banco Central que usa el proyecto. Los códigos salen de data/catalogo.csv.
+# Si una serie tiene varios códigos (cambios de base), se empalman: el último código manda donde se traslapan.
+# agregacion: cómo pasar una serie diaria a mensual ("promedio" o "ultimo"). Las mensuales no la necesitan.
+
+[[serie]]
+nombre = "ipc_mensual"
+descripcion = "IPC general, variación mensual (%), serie histórica"
+codigos = ["F074.IPC.VAR.Z.Z.C.M"]
+
+[[serie]]
+nombre = "ipc_12m"
+descripcion = "IPC general, variación 12 meses (%), serie histórica"
+codigos = ["F074.IPC.IND.Z.EP09.C.M"]
+
+[[serie]]
+nombre = "ipc_sae_mensual"
+descripcion = "IPC sin alimentos ni energía, variación mensual (%)"
+codigos = ["F074.IPCSAE.VAR.Z.2018.C.M", "F074.IPCSAE.VAR.Z.2023.C.M"]
+
+[[serie]]
+nombre = "dolar"
+descripcion = "Dólar observado (CLP por USD), promedio del mes"
+codigos = ["F073.TCO.PRE.Z.D"]
+agregacion = "promedio"
+
+[[serie]]
+nombre = "tpm"
+descripcion = "Tasa de política monetaria (%), último dato del mes"
+codigos = ["F022.TPM.TIN.D001.NO.Z.D"]
+agregacion = "ultimo"
+
+[[serie]]
+nombre = "cobre"
+descripcion = "Precio del cobre refinado BML (USD por libra)"
+codigos = ["F019.PPB.PRE.40.M"]
+
+[[serie]]
+nombre = "imacec"
+descripcion = "Imacec empalmado, serie original (índice 2018=100)"
+codigos = ["F032.IMC.IND.Z.Z.EP18.Z.Z.0.M"]
+
+[[serie]]
+nombre = "eee_mes"
+descripcion = "Encuesta de Expectativas Económicas: inflación esperada para el mes de la encuesta (variación mensual, mediana)"
+codigos = ["F089.IPC.VAR.11.M"]
+
+[[serie]]
+nombre = "eee_mes_siguiente"
+descripcion = "Encuesta de Expectativas Económicas: inflación esperada para el mes siguiente (variación mensual, mediana)"
+codigos = ["F089.IPC.VAR.24.M"]
+
+[[serie]]
+nombre = "eee_12m_en_11"
+descripcion = "Encuesta de Expectativas Económicas: inflación 12 meses esperada dentro de 11 meses (mediana)"
+codigos = ["F089.IPC.V12.14.M"]

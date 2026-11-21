@@ -9,7 +9,7 @@ SRC = Path(__file__).resolve().parents[1] / "src" / "inflacion"
 
 # Lo que NO puede importar cada capa.
 PROHIBIDO = {
-    "dominio": ("inflacion.aplicacion", "inflacion.infraestructura", "inflacion.presentacion", "requests", "pandas"),
+    "dominio": ("inflacion.aplicacion", "inflacion.infraestructura", "inflacion.presentacion", "requests", "tomllib"),
     "aplicacion": ("inflacion.infraestructura", "inflacion.presentacion", "requests"),
     "infraestructura": ("inflacion.presentacion",),
 }

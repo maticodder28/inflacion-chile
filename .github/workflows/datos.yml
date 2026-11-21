@@ -1,0 +1,32 @@
+name: datos
+
+# Actualiza data/panel_mensual.csv con las series del Banco Central.
+# El IPC sale el día 8 de cada mes y la Encuesta de Expectativas cerca del 10, así que corre el 12.
+
+on:
+  schedule:
+    - cron: '23 14 12 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  datos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e .
+      - run: python -m inflacion datos
+        env:
+          BCCH_TOKEN: ${{ secrets.BCCH_TOKEN }}
+      - name: Subir los datos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "datos: actualización mensual del Banco Central"
+          git push

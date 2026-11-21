@@ -16,3 +16,7 @@ class AlmacenCSV:
         self.carpeta.mkdir(parents=True, exist_ok=True)
         filas = [{**asdict(s), "frecuencia": s.frecuencia.value} for s in series]
         pd.DataFrame(filas).to_csv(self.carpeta / "catalogo.csv", index=False)
+
+    def guardar_panel(self, panel: pd.DataFrame) -> None:
+        self.carpeta.mkdir(parents=True, exist_ok=True)
+        panel.to_csv(self.carpeta / "panel_mensual.csv", float_format="%.6g", date_format="%Y-%m-%d")
