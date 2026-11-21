@@ -87,3 +87,19 @@ def test_diebold_mariano_detecta_al_mejor_y_no_inventa_diferencias():
     _, p_igual = diebold_mariano(bueno, pd.Series(rng.normal(0, 1, 200)), 1)
     assert p_igual > 0.05
     assert mae(pd.Series([-1.0, 1.0])) == 1.0
+
+
+def test_los_datos_del_sitio_son_json_valido_y_traen_la_apuesta_abierta():
+    import json
+
+    from inflacion.aplicacion.sitio import datos_sitio
+
+    panel = panel_falso().assign(eee_12m_en_11=3.0)
+    panel.loc[panel.index[-1], "ipc_mensual"] = np.nan  # el mes de la última encuesta todavía no se conoce
+    tareas = [(Tarea("Inflación del mes", "ipc_mensual", 1, "eee_mes"), [Ingenuo()])]
+    r = backtest(panel, tareas[0][0], [Ingenuo()], {}, "2015-01-01").assign(SARIMA=0.3)
+    d = datos_sitio(panel, resumen(r, tareas[0][0]), r, tareas, {})
+    texto = json.dumps(d, allow_nan=False)  # falla si quedó algún NaN
+    assert "NaN" not in texto
+    assert d["vigentes"][0]["mes_pronosticado"] == f"{panel.index[-1]:%Y-%m}"
+    assert d["vigentes"][0]["pronosticos"][0]["competidor"] == ECONOMISTAS

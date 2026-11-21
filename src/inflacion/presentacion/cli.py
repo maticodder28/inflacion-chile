@@ -1,6 +1,7 @@
 """Línea de comandos: python -m inflacion <comando>. Acá se arman las dependencias reales."""
 
 import argparse
+import json
 import os
 import sys
 from datetime import date
@@ -11,6 +12,7 @@ import pandas as pd
 from inflacion.aplicacion.catalogo import actualizar_catalogo
 from inflacion.aplicacion.competencia import ECONOMISTAS, Tarea, competir
 from inflacion.aplicacion.descarga import descargar_panel
+from inflacion.aplicacion.sitio import datos_sitio
 from inflacion.dominio import analisis
 from inflacion.dominio.modelos import Constante, Ingenuo, MismoMesAnioAnterior, Sarima, gradient_boosting, ridge
 from inflacion.dominio.series import Frecuencia
@@ -60,9 +62,23 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("datos", help="Baja las series de config/series.toml y arma data/panel_mensual.csv")
     sub.add_parser("competir", help="Corre la competencia modelos vs economistas y guarda data/resultados/")
     sub.add_parser("graficos", help="Dibuja los gráficos del análisis en docs/img/")
+    sub.add_parser("sitio", help="Genera sitio/datos.json para el dashboard")
     args = parser.parse_args(argv)
 
     almacen = AlmacenCSV(DATA)
+    if args.comando == "sitio":
+        defs = leer_series(RAIZ / "config" / "series.toml")
+        resultados = DATA / "resultados"
+        datos = datos_sitio(
+            almacen.leer_panel(),
+            pd.read_csv(resultados / "resumen.csv"),
+            pd.read_csv(resultados / "pronosticos_ipc_mensual.csv", index_col="encuesta", parse_dates=True),
+            tareas(),
+            {d.nombre: d.rezago for d in defs},
+        )
+        (RAIZ / "sitio" / "datos.json").write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+        print(f"sitio/datos.json listo (datos a {datos['actualizado']})")
+        return
     if args.comando == "graficos":
         dibujar_graficos(almacen.leer_panel(), pd.read_csv(DATA / "resultados" / "resumen.csv"))
         return

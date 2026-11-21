@@ -113,3 +113,20 @@ def competir(
     tabla = pd.concat(resumenes, ignore_index=True)
     almacen.guardar_resultado("resumen", tabla)
     return tabla
+
+
+def pronostico_vigente(panel: pd.DataFrame, tarea: Tarea, modelos: list[Modelo], rezagos: dict[str, int]) -> dict:
+    """La apuesta abierta: lo que dicen hoy los economistas y cada modelo para un mes que todavía no se conoce.
+
+    Usa la última encuesta publicada; los modelos ven exactamente lo mismo que habrían visto ese día.
+    """
+    encuestas = panel[tarea.columna_encuesta].dropna()
+    origen = encuestas.index[-1]
+    historia = informacion_al(panel, origen, rezagos)
+    return {
+        "tarea": tarea.nombre,
+        "encuesta": origen,
+        "mes_pronosticado": origen + pd.DateOffset(months=tarea.desfase),
+        "pronosticos": {ECONOMISTAS: float(encuestas.iloc[-1])}
+        | {m.nombre: m.pronosticar(historia, tarea.objetivo, tarea.pasos) for m in modelos},
+    }

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Le gana un modelo a los economistas? | Inflación en Chile</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="Competencia justa entre modelos de pronóstico y la Encuesta de Expectativas Económicas del Banco Central de Chile, actualizada cada mes.">
+<style>
+  /* Paleta de referencia: azul = inflación real, naranjo = economistas, aqua = modelo. Los textos nunca usan el color de la serie. */
+  :root {
+    color-scheme: light;
+    --fondo: #f4f3ef; --superficie: #fcfcfb; --borde: #e3e2dc; --grilla: #e9e8e3; --banda: #efeee9;
+    --texto: #0b0b0b; --texto-2: #52514e; --texto-3: #6f6e69;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --fondo: #111110; --superficie: #1a1a19; --borde: #2c2c2a; --grilla: #2a2a28; --banda: #242422;
+      --texto: #f0efec; --texto-2: #c3c2b7; --texto-3: #9a998f;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 20px 56px; }
+  h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.1; margin: 6px 0 12px; letter-spacing: -0.02em; }
+  h2 { font-size: 21px; margin: 0 0 4px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--s1); }
+  .sobre { color: var(--texto-2); font-size: 14px; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  .bajada { font-size: 18px; color: var(--texto-2); max-width: 760px; }
+  .tarjeta { background: var(--superficie); border: 1px solid var(--borde); border-radius: 14px; padding: 22px; margin-top: 20px; }
+  .sub { color: var(--texto-2); font-size: 14px; margin-bottom: 14px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 24px; }
+  .kpi { background: var(--superficie); border: 1px solid var(--borde); border-radius: 14px; padding: 18px; }
+  .kpi .et { font-size: 13px; color: var(--texto-2); font-weight: 600; }
+  .kpi .v { font-size: 30px; font-weight: 700; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .kpi .d { font-size: 13px; color: var(--texto-2); }
+  .apuesta { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .apuesta h3 { font-size: 15px; margin: 0 0 8px; }
+  .filas { display: grid; gap: 6px; }
+  .fila { display: grid; grid-template-columns: minmax(150px, 1.3fr) 2fr 56px; align-items: center; gap: 10px; font-size: 14px; }
+  .fila .barra { height: 10px; border-radius: 0 4px 4px 0; background: var(--s1); }
+  .fila.eco .barra { background: var(--s2); }
+  .fila .n { text-align: right; font-variant-numeric: tabular-nums; }
+  .controles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .controles button { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--texto); cursor: pointer; }
+  .controles button[aria-pressed="true"] { background: var(--texto); color: var(--superficie); border-color: var(--texto); }
+  .grafico { position: relative; }
+  .grafico svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .leyenda { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--texto-2); margin-bottom: 6px; }
+  .leyenda i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+  .tip { position: absolute; pointer-events: none; background: var(--superficie); border: 1px solid var(--borde); border-radius: 8px; padding: 8px 10px; font-size: 13px; box-shadow: 0 4px 14px rgba(0,0,0,.12); white-space: nowrap; display: none; z-index: 2; }
+  .tip b { display: block; margin-bottom: 2px; }
+  .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  details { margin-top: 12px; font-size: 14px; }
+  summary { cursor: pointer; color: var(--texto-2); }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--grilla); }
+  th:first-child, td:first-child { text-align: left; }
+  .tabla-scroll { max-height: 320px; overflow: auto; }
+  .nota { font-size: 13px; color: var(--texto-3); }
+  ol li, ul li { margin-bottom: 6px; }
+  footer { margin-top: 32px; font-size: 13px; color: var(--texto-3); }
+  @media (max-width: 560px) { .fila { grid-template-columns: 1fr 1.4fr 48px; font-size: 13px; } .tarjeta { padding: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="sobre">Inflación en Chile · datos del Banco Central</div>
+  <h1>¿Le gana un modelo a los economistas?</h1>
+  <p class="bajada">Todos los meses el Banco Central le pregunta a un grupo de economistas cuánta inflación esperan. Puse a competir sus respuestas contra modelos que solo ven lo que se sabía ese mismo día. Se actualiza sola cada mes.</p>
+
+  <section class="kpis" id="kpis" aria-label="Resumen"></section>
+
+  <section class="tarjeta" aria-labelledby="t-apuesta">
+    <h2 id="t-apuesta">La apuesta abierta</h2>
+    <p class="sub" id="apuesta-sub"></p>
+    <div class="apuesta" id="apuesta"></div>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-12m">
+    <h2 id="t-12m">Lo que esperaban los economistas vs. lo que pasó</h2>
+    <p class="sub">Inflación en 12 meses. La línea naranja es lo que la encuesta esperaba para ese mes, un año antes. La franja es el rango meta (2% a 4%).</p>
+    <div class="controles" id="rango-12m" role="group" aria-label="Período"></div>
+    <div class="leyenda"><span><i style="background:var(--s1)"></i>Inflación real</span><span><i style="background:var(--s2)"></i>Esperada un año antes</span></div>
+    <div class="grafico" id="g-12m"></div>
+    <details><summary>Ver como tabla</summary><div class="tabla-scroll" id="tabla-12m"></div></details>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-res">
+    <h2 id="t-res">Quién se equivoca menos</h2>
+    <p class="sub">Error absoluto medio de cada pronóstico, en puntos porcentuales. Más corto es mejor. * = la diferencia con los economistas es estadísticamente significativa (test de Diebold-Mariano, p &lt; 0,05).</p>
+    <div class="controles" id="tareas" role="group" aria-label="Pregunta"></div>
+    <div class="controles" id="periodos" role="group" aria-label="Período"></div>
+    <div class="grafico" id="g-res"></div>
+    <details><summary>Ver como tabla</summary><div id="tabla-res"></div></details>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-mes">
+    <h2 id="t-mes">Mes a mes: los últimos tres años</h2>
+    <p class="sub">Inflación mensual: lo que pasó, lo que esperaban los economistas y lo que pronosticó el SARIMA, el mejor modelo.</p>
+    <div class="leyenda"><span><i style="background:var(--s1)"></i>Real</span><span><i style="background:var(--s2)"></i>Economistas</span><span><i style="background:var(--s3)"></i>SARIMA</span></div>
+    <div class="grafico" id="g-mes"></div>
+    <details><summary>Ver como tabla</summary><div class="tabla-scroll" id="tabla-mes"></div></details>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-como">
+    <h2 id="t-como">Cómo es justa la comparación</h2>
+    <ul>
+      <li><b>Cada modelo ve solo lo que se sabía el día de la encuesta</b> (cerca del día 10 de cada mes): el IPC hasta el mes anterior, el dólar y la tasa del mes anterior y el Imacec de dos meses atrás, porque se publica con rezago.</li>
+      <li><b>Los modelos se reentrenan cada mes</b> con los datos de ese momento, como se habrían usado de verdad. Hay tests que cambian el futuro y verifican que el pronóstico no se mueve.</li>
+      <li><b>Competidores:</b> repetir el último dato, el mismo mes del año anterior, la meta del 3%, un SARIMA y dos modelos de machine learning (regresión ridge y gradient boosting) con dólar, cobre, tasa e Imacec.</li>
+      <li><b>La ventaja de los economistas:</b> cuando responden ya conocen parte de los precios del mes. Los modelos no.</li>
+    </ul>
+    <p>Código, tests y análisis completo en <a href="https://github.com/maticodder28/inflacion-chile">GitHub</a> · <a href="https://github.com/maticodder28/inflacion-chile/blob/main/notebooks/01_analisis.ipynb">notebook con las conclusiones</a>.</p>
+  </section>
+
+  <footer>
+    <p>Fuente: Banco Central de Chile, Base de Datos Estadísticos (BDE). Los datos son propiedad del Banco Central de Chile; el análisis y los modelos son míos. <span id="actualizado"></span></p>
+    <p>Hecho por Matías Munizaga.</p>
+  </footer>
+</main>
+
+<script>
+(() => {
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const MESES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const num = (v, d = 1) => v == null ? '–' : v.toFixed(d).replace('.', ',');
+  const mesCorto = (m) => `${MESES[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}`;
+  const mesLargo = (m) => `${MESES_L[+m.slice(5, 7) - 1]} de ${m.slice(0, 4)}`;
+  const el = (id) => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const svgEl = (tag, attrs = {}, padre) => { const e = document.createElementNS(NS, tag); for (const k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]); if (padre) padre.appendChild(e); return e; };
+  const escapar = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function botones(cont, opciones, actual, alElegir) {
+    cont.innerHTML = '';
+    for (const [valor, texto] of opciones) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = texto; b.setAttribute('aria-pressed', valor === actual);
+      b.onclick = () => { [...cont.children].forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); alElegir(valor); };
+      cont.appendChild(b);
+    }
+  }
+
+  function tabla(cont, columnas, filas) {
+    cont.innerHTML = `<table><thead><tr>${columnas.map((c) => `<th>${escapar(c)}</th>`).join('')}</tr></thead><tbody>${
+      filas.map((f) => `<tr>${f.map((v) => `<td>${escapar(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+
+  // Gráfico de líneas con un solo eje, banda de meta opcional, cruz y tooltip al pasar el mouse o el dedo.
+  function lineas(cont, puntos, series, { banda = null, formato = (v) => `${num(v)}%`, pasoY = 2 } = {}) {
+    cont.innerHTML = '';
+    // Dibujo al ancho real del contenedor: si escalara un SVG de 960 px, en el celular el texto quedaría ilegible.
+    const W = Math.max(300, cont.clientWidth || 960), H = W < 600 ? 260 : 340, m = { t: 12, r: 12, b: 28, l: 44 };
+    const valores = puntos.flatMap((p) => series.map((s) => p[s.clave])).filter((v) => v != null);
+    let min = Math.min(0, ...valores), max = Math.max(...valores, banda ? banda[1] : -Infinity);
+    min = Math.floor(min / pasoY) * pasoY; max = Math.ceil(max / pasoY) * pasoY;
+    const x = (i) => m.l + (i / Math.max(1, puntos.length - 1)) * (W - m.l - m.r);
+    const y = (v) => H - m.b - ((v - min) / (max - min)) * (H - m.t - m.b);
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': series.map((s) => s.nombre).join(' y ') });
+    if (banda) svgEl('rect', { x: m.l, y: y(banda[1]), width: W - m.l - m.r, height: y(banda[0]) - y(banda[1]), fill: 'var(--banda)' }, svg);
+    for (let v = min; v <= max + 1e-9; v += pasoY) {
+      svgEl('line', { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: 'var(--grilla)' }, svg);
+      const t = svgEl('text', { x: m.l - 8, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 12, fill: 'var(--texto-2)' }, svg); t.textContent = formato(v).replace(',0%', '%');
+    }
+    const anios = puntos.length / 12, cabe = Math.floor((W - m.l - m.r) / 46);
+    const cadaAnio = Math.max(1, Math.ceil(anios / cabe));
+    puntos.forEach((p, i) => {
+      if (p.mes.endsWith('-01') && (+p.mes.slice(0, 4)) % cadaAnio === 0) {
+        const t = svgEl('text', { x: x(i), y: H - 8, 'text-anchor': 'middle', 'font-size': 12, fill: 'var(--texto-2)' }, svg); t.textContent = p.mes.slice(0, 4);
+      }
+    });
+    for (const s of series) {
+      let d = '', abierto = false;
+      puntos.forEach((p, i) => { const v = p[s.clave]; if (v == null) { abierto = false; return; } d += `${abierto ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`; abierto = true; });
+      svgEl('path', { d, fill: 'none', stroke: s.color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-dasharray': s.punteada ? '5 4' : null }, svg);
+    }
+    const guia = svgEl('line', { y1: m.t, y2: H - m.b, stroke: 'var(--texto-3)', 'stroke-width': 1, visibility: 'hidden' }, svg);
+    const marcas = series.map((s) => svgEl('circle', { r: 5, fill: s.color, stroke: 'var(--superficie)', 'stroke-width': 2, visibility: 'hidden' }, svg));
+    const zona = svgEl('rect', { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: 'transparent' }, svg);
+    cont.appendChild(svg);
+    const tip = document.createElement('div'); tip.className = 'tip'; cont.appendChild(tip);
+    const mover = (ev) => {
+      const r = svg.getBoundingClientRect();
+      const px = ((ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left) * (W / r.width);
+      const i = Math.max(0, Math.min(puntos.length - 1, Math.round(((px - m.l) / (W - m.l - m.r)) * (puntos.length - 1))));
+      const p = puntos[i];
+      guia.setAttribute('x1', x(i)); guia.setAttribute('x2', x(i)); guia.setAttribute('visibility', 'visible');
+      series.forEach((s, k) => { const v = p[s.clave]; marcas[k].setAttribute('visibility', v == null ? 'hidden' : 'visible'); if (v != null) { marcas[k].setAttribute('cx', x(i)); marcas[k].setAttribute('cy', y(v)); } });
+      tip.innerHTML = `<b>${mesCorto(p.mes)}</b>` + series.map((s) => `<div><i style="background:${s.color}"></i>${escapar(s.nombre)}: ${p[s.clave] == null ? 'sin dato' : formato(p[s.clave])}</div>`).join('');
+      tip.style.display = 'block';
+      const izq = (x(i) / W) * r.width;
+      tip.style.left = `${Math.min(Math.max(izq + 12, 0), r.width - tip.offsetWidth)}px`;
+      tip.style.top = '8px';
+    };
+    const salir = () => { tip.style.display = 'none'; guia.setAttribute('visibility', 'hidden'); marcas.forEach((c) => c.setAttribute('visibility', 'hidden')); };
+    zona.addEventListener('mousemove', mover); zona.addEventListener('touchmove', mover, { passive: true }); zona.addEventListener('touchstart', mover, { passive: true });
+    zona.addEventListener('mouseleave', salir); zona.addEventListener('touchend', salir);
+  }
+
+  // Barras horizontales del error de cada competidor; los economistas en naranjo.
+  function barras(cont, filas, economistas) {
+    cont.innerHTML = '';
+    const maximo = Math.max(...filas.map((f) => f.mae));
+    const lista = document.createElement('div'); lista.className = 'filas';
+    for (const f of filas) {
+      const fila = document.createElement('div');
+      fila.className = 'fila' + (f.competidor === economistas ? ' eco' : '');
+      const sig = f.competidor !== economistas && f.p_valor != null && f.p_valor < 0.05 ? ' *' : '';
+      const vs = f.competidor === economistas ? 'la referencia' : `${f.mae_vs_economistas >= 1 ? '+' : ''}${num((f.mae_vs_economistas - 1) * 100, 0)}% vs. economistas${f.p_valor != null ? `, p = ${num(f.p_valor, 2)}` : ''}`;
+      fila.title = `${f.competidor}: ${num(f.mae, 2)} pp (${vs})`;
+      fila.innerHTML = `<span>${escapar(f.competidor)}</span><div class="barra" style="width:${(f.mae / maximo) * 100}%"></div><span class="n">${num(f.mae, 2)}${sig}</span>`;
+      lista.appendChild(fila);
+    }
+    cont.appendChild(lista);
+  }
+
+  // Al cambiar el ancho de la ventana se vuelven a dibujar los gráficos de líneas.
+  const redibujos = [];
+  let espera;
+  window.addEventListener('resize', () => { clearTimeout(espera); espera = setTimeout(() => redibujos.forEach((f) => f()), 150); });
+
+  fetch('datos.json').then((r) => r.json()).then((D) => {
+    const eco = D.economistas;
+    el('actualizado').textContent = `Datos hasta ${mesLargo(D.actualizado)}.`;
+    const res = D.resumen;
+    const dato = (tarea, competidor, periodo = 'Todo') => res.find((f) => f.tarea === tarea && f.competidor === competidor && f.periodo === periodo);
+    const tareas = [...new Set(res.map((f) => f.tarea))];
+    const mejorModelo = (tarea, periodo = 'Todo') => res.filter((f) => f.tarea === tarea && f.periodo === periodo && f.competidor !== eco).sort((a, b) => a.mae - b.mae)[0];
+
+    // KPIs
+    const [t1, t2] = tareas;
+    const e1 = dato(t1, eco), m1 = mejorModelo(t1), e2 = dato(t2, eco), m2 = mejorModelo(t2);
+    el('kpis').innerHTML = [
+      ['Inflación del mes', 'Ganan los economistas', `Error ${num(e1.mae, 2)} pp contra ${num(m1.mae, 2)} del mejor modelo (${escapar(m1.competidor)}).`],
+      ['A un año plazo', 'Empate técnico', `Economistas ${num(e2.mae, 2)} pp; ${escapar(m2.competidor)} ${num(m2.mae, 2)}. Diferencia no significativa (p = ${num(m2.p_valor, 2)}).`],
+      ['Inflación hoy', `${num(D.ultimo_ipc_12m)}%`, `En 12 meses a ${mesLargo(D.actualizado)}. Tasa de política: ${num(D.tpm, 2)}%.`],
+      D.episodio ? ['El shock', `${num(D.episodio.peak)}%`, `Peak en ${mesLargo(D.episodio.mes_peak)}: ${D.episodio.meses} meses seguidos sobre el 4%.`] : null,
+    ].filter(Boolean).map(([et, v, d]) => `<div class="kpi"><div class="et">${et}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join('');
+
+    // La apuesta abierta
+    el('apuesta-sub').textContent = `Lo que dicen hoy los economistas y cada modelo, con la encuesta de ${mesLargo(D.vigentes[0].encuesta)}. Cuando salga el dato, se suma a la competencia.`;
+    el('apuesta').innerHTML = D.vigentes.map((v) => {
+      const maximo = Math.max(...v.pronosticos.map((p) => Math.abs(p.valor ?? 0)));
+      const unidad = v.tarea === t1 ? 'variación mensual' : 'variación en 12 meses';
+      return `<div><h3>${escapar(v.tarea)}: ${mesLargo(v.mes_pronosticado)} <span class="nota">(${unidad})</span></h3><div class="filas">${
+        v.pronosticos.map((p) => `<div class="fila${p.competidor === eco ? ' eco' : ''}"><span>${escapar(p.competidor)}</span><div class="barra" style="width:${maximo ? (Math.abs(p.valor ?? 0) / maximo) * 100 : 0}%"></div><span class="n">${num(p.valor, 2)}%</span></div>`).join('')
+      }</div></div>`;
+    }).join('');
+
+    // Esperado vs real
+    const series12 = [{ clave: 'real', nombre: 'Inflación real', color: 'var(--s1)' }, { clave: 'esperado', nombre: 'Esperada un año antes', color: 'var(--s2)' }];
+    let desde12 = '2010';
+    const dibujar12 = () => lineas(el('g-12m'), D.serie_12m.filter((p) => p.mes >= desde12), series12, { banda: [2, 4] });
+    botones(el('rango-12m'), [['2010', 'Desde 2010'], ['2020', 'Desde 2020'], ['2024', 'Desde 2024']], desde12, (v) => { desde12 = v; dibujar12(); });
+    dibujar12();
+    redibujos.push(dibujar12);
+    tabla(el('tabla-12m'), ['Mes', 'Real (%)', 'Esperada un año antes (%)'], [...D.serie_12m].reverse().map((p) => [mesCorto(p.mes), num(p.real), num(p.esperado)]));
+
+    // Resultados
+    let tarea = t1, periodo = 'Todo';
+    const periodos = [...new Set(res.map((f) => f.periodo))];
+    const dibujarRes = () => {
+      const filas = res.filter((f) => f.tarea === tarea && f.periodo === periodo).sort((a, b) => a.mae - b.mae);
+      barras(el('g-res'), filas, eco);
+      tabla(el('tabla-res'), ['Competidor', 'Meses', 'Error abs. medio (pp)', 'vs. economistas', 'Valor p'],
+        filas.map((f) => [f.competidor, f.meses, num(f.mae, 3), f.competidor === eco ? '–' : `${num(f.mae_vs_economistas, 2)}x`, num(f.p_valor, 3)]));
+    };
+    botones(el('tareas'), tareas.map((t) => [t, t]), tarea, (v) => { tarea = v; dibujarRes(); });
+    botones(el('periodos'), periodos.map((p) => [p, p]), periodo, (v) => { periodo = v; dibujarRes(); });
+    dibujarRes();
+
+    // Mes a mes
+    const dibujarMes = () => lineas(el('g-mes'), D.mensual, [
+      { clave: 'real', nombre: 'Real', color: 'var(--s1)' },
+      { clave: 'economistas', nombre: 'Economistas', color: 'var(--s2)' },
+      { clave: 'sarima', nombre: 'SARIMA', color: 'var(--s3)' },
+    ], { formato: (v) => `${num(v, 2)}%`, pasoY: 0.5 });
+    dibujarMes();
+    redibujos.push(dibujarMes);
+    tabla(el('tabla-mes'), ['Mes', 'Real (%)', 'Economistas (%)', 'SARIMA (%)'], [...D.mensual].reverse().map((p) => [mesCorto(p.mes), num(p.real), num(p.economistas), num(p.sarima, 2)]));
+  }).catch(() => {
+    el('kpis').innerHTML = '<div class="kpi">No se pudieron cargar los datos. Intenta recargar la página.</div>';
+  });
+})();
+</script>
+</body>
+</html>
